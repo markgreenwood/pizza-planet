@@ -3,6 +3,7 @@ const url = require('url');
 const { StringDecoder } = require('string_decoder');
 const config = require('./config');
 const handlers = require('./handlers');
+const helpers = require('./helpers');
 
 const server = {};
 
@@ -31,8 +32,11 @@ server.httpServer = http.createServer((req, res) => {
       trimmedPath,
       queryStringObject,
       method,
-      headers
+      headers,
+      payload: helpers.parseJsonToObject(buffer)
     };
+
+    // TODO: Add payload to data
 
     console.log('trimmedPath ', trimmedPath)
 
@@ -41,9 +45,21 @@ server.httpServer = http.createServer((req, res) => {
 
     selectedHandler(data, (statusCode, payload, contentType) => {
       contentType = contentType ? contentType : 'text/plain';
-      res.setHeader('Content-Type', contentType);
+
+      let payloadString = '';
+
+      if (contentType == 'application/json') {
+        res.setHeader('Content-Type', 'application/json');
+        payloadString = JSON.stringify(payload);
+      }
+
+      if (contentType == 'text/plain') {
+        res.setHeader('Content-Type', 'text/plain');
+        payloadString = payload;
+      }
+
       res.writeHead(statusCode);
-      res.end(payload);
+      res.end(payloadString);
     });
   });
 });
