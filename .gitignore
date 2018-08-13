@@ -63,3 +63,6 @@ typings/
 # IDE stuff
 .idea
 .DS_Store
+
+# Data directories
+.data

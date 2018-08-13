@@ -16,14 +16,12 @@ const users = (data, callback) => {
 
 // Create a new user
 _users.post = (data, callback) => {
-  console.log('Attempting POST /users', data.payload);
-
   // Validate the parameters passed in: name, email, address, password
-  const firstName = typeof(data.payload.firstName) == 'string' && data.payload.firstName.length > 0 ? data.payload.firstName : false;
-  const phone = helpers.validatePhone(data.payload.phone) ? data.payload.phone : false;
-  const email = helpers.validateEmail(data.payload.email) ? data.payload.email : false;
+  const firstName = typeof(data.payload.firstName) == 'string' && data.payload.firstName.trim().length > 0 ? data.payload.firstName.trim() : false;
+  const phone = helpers.validatePhone(data.payload.phone);
+  const email = helpers.validateEmail(data.payload.email);
   const address = typeof(data.payload.address) == 'string' && data.payload.address.length > 0 ? data.payload.address : false;
-  const password = typeof(data.payload.password) == 'string' && data.payload.password && data.payload.password.length > 8 ? data.payload.password : false;
+  const password = helpers.validatePassword(data.payload.password);
 
   if (firstName && phone && email && address && password) {
 
@@ -49,29 +47,83 @@ _users.post = (data, callback) => {
               callback(200, userObject, 'application/json');
             } else {
               console.log(err);
-              callback(500, { Error: 'Could not create the new user.' }, 'application/json');
+              callback(500, { Error: 'Could not create the new user.' });
             }
           });
         } else {
-          callback(500, { Error: 'Failed to hash user\'s password' }, 'application/json');
+          callback(500, { Error: 'Failed to hash user\'s password' });
         }
       } else {
-        callback(400, { Error: 'User already exists' }, 'application/json');
+        callback(400, { Error: 'User already exists' });
       }
     });
   } else {
-    callback(400, { Error: 'Missing or invalid required parameters' }, 'application/json');
+    callback(400, { Error: 'Missing or invalid required parameters' });
   }
 };
 
 _users.put = (data, callback) => {
-  console.log('PUT /users', data.payload);
-  callback(200);
+  // Check required fields
+  const phone = helpers.validatePhone(data.payload.phone);
+
+  // Check optional fields
+  const firstName = typeof(data.payload.firstName) == 'string' && data.payload.firstName.length > 0 ? data.payload.firstName : false;
+  const email = helpers.validateEmail(data.payload.email);
+  const address = typeof(data.payload.address) == 'string' && data.payload.address.length > 0 ? data.payload.address : false;
+  const password = helpers.validatePassword(data.payload.password);
+
+  if (phone) {
+    if (firstName || email || address || password) {
+      // Look up the user
+      // TODO: Make sure user is authenticated before modifying data
+      // Read user's existing data
+      _data.read('users', phone, (err, userData) => {
+        if (!err && userData) {
+          if (firstName) {
+            userData.firstName = firstName;
+          }
+
+          if (email) {
+            userData.email = email;
+          }
+
+          if (address) {
+            userData.address = address;
+          }
+
+          if (password) {
+            userData.hashedPassword = helpers.hash(password);
+          }
+
+          _data.update('users', phone, userData, (err) => {
+            if (!err) {
+              callback(200);
+            } else {
+              callback(500, { Error: 'Failed to update user' });
+            }
+          })
+        } else {
+          callback(400, { Error: 'Specified user does not exist' });
+        }
+      });
+    } else {
+      callback(400, { Error: 'Missing fields to update' });
+    }
+  } else {
+    callback(400, { Error: 'Missing required field' });
+  }
 };
 
 _users.delete = (data, callback) => {
-  console.log('DELETE /users', data.payload);
-  callback(200);
+  // Check required fields
+  const phone = helpers.validatePhone(data.queryString.phone) ? data.queryString.phone : false;
+
+  if (phone) {
+    console.log('DELETE /users', data.payload);
+    callback(200);
+  } else {
+    console.log(400, { Error: 'Missing required fields' });
+  }
 };
 
 module.exports = users;

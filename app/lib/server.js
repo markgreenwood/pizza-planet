@@ -12,12 +12,11 @@ server.httpServer = http.createServer((req, res) => {
   const path = parsedUrl.pathname;
   const trimmedPath = path.replace(/^\/+|\/+$/g, '');
 
-  const queryStringObject = parsedUrl.query;
+  const queryString = parsedUrl.query;
   const method = req.method.toLowerCase();
   const headers = req.headers;
 
   let buffer = '';
-
   const decoder = new StringDecoder('utf8');
 
   // Body parser
@@ -30,30 +29,26 @@ server.httpServer = http.createServer((req, res) => {
 
     const data = {
       trimmedPath,
-      queryStringObject,
+      queryString,
       method,
       headers,
       payload: helpers.parseJsonToObject(buffer)
     };
 
-    // TODO: Add payload to data
-
-    console.log('trimmedPath ', trimmedPath)
-
     // Check route and call the handler
     const selectedHandler = trimmedPath ? server.router[trimmedPath] : handlers.notFound;
 
     selectedHandler(data, (statusCode, payload, contentType) => {
-      contentType = contentType ? contentType : 'text/plain';
+      contentType = contentType ? contentType : 'json';
 
       let payloadString = '';
 
-      if (contentType == 'application/json') {
+      if (contentType == 'json') {
         res.setHeader('Content-Type', 'application/json');
         payloadString = JSON.stringify(payload);
       }
 
-      if (contentType == 'text/plain') {
+      if (contentType == 'text') {
         res.setHeader('Content-Type', 'text/plain');
         payloadString = payload;
       }

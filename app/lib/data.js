@@ -46,7 +46,42 @@ const create = function(dir, file, data, callback) {
   });
 };
 
+// Update data in an existing file
+const update = function(dir, file, data, callback) {
+  // Open the file for writing
+  fs.open(baseDir + dir + '/' + file + '.json', 'r+', function(err, fileDescriptor) {
+    if (!err && fileDescriptor) {
+      const stringData = JSON.stringify(data);
+
+      // Truncate the contents of the file before writing
+      fs.truncate(fileDescriptor, function(err) {
+        if (!err) {
+          // Write to the file and close it
+          fs.writeFile(fileDescriptor, stringData, function(err) {
+            if (!err) {
+              fs.close(fileDescriptor, function(err) {
+                if (!err) {
+                  callback(false);
+                } else {
+                  callback('Error closing the file.')
+                }
+              })
+            } else {
+              callback('Error writing to existing file.');
+            }
+          })
+        } else {
+          callback('Error truncating file.');
+        }
+      })
+    } else {
+      callback('Could not open the file for updating. It may not exist yet.');
+    }
+  });
+};
+
 module.exports = {
   read,
-  create
+  create,
+  update
 };

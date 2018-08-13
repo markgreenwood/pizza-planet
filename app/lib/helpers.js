@@ -11,11 +11,15 @@ const parseJsonToObject = (str) => {
 };
 
 const validatePhone = (str) => {
-  return typeof(str) == 'string' && str.length == 10 && str.match(/^[0-9]+$/);
+  return typeof(str) == 'string' && str.trim().length == 10 && str.trim().match(/^[0-9]+$/) ? str.trim() : false;
 };
 
 const validateEmail = (str) => {
-  return typeof(str) == 'string' && str.length > 3 && str.match(/^[A-Za-z0-9_.]+@[A-Za-z0-9_]+\.[A-Za-z0-9_]+$/);
+  return typeof(str) == 'string' && str.trim().length > 3 && str.trim().match(/^[A-Za-z0-9_.]+@[A-Za-z0-9_]+\.[A-Za-z0-9_]+$/) ? str.trim() : false;
+};
+
+const validatePassword = (str) => {
+  return typeof(str) == 'string' && str.length > 8 ? str : false;
 };
 
 const hash = (str) => {
@@ -31,5 +35,6 @@ module.exports = {
   parseJsonToObject,
   validatePhone,
   validateEmail,
+  validatePassword,
   hash
 };
