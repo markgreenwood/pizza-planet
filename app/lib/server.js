@@ -50,7 +50,8 @@ server.httpServer = http.createServer((req, res) => {
 
 server.router = {
   'healthcheck': handlers.healthcheck,
-  'hello': handlers.hello
+  'hello': handlers.hello,
+  'users': handlers.users
 };
 
 server.init = () => {

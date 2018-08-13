@@ -12,4 +12,8 @@ handlers.notFound = (data, callback) => {
   callback(404);
 };
 
+handlers.users = {
+
+};
+
 module.exports = handlers;
