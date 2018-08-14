@@ -1,4 +1,5 @@
 const users = require('./users');
+const tokens = require('./tokens');
 
 const healthcheck = (data, callback) => {
   callback(200, 'Pizza Planet site is up and running', 'text/plain');
@@ -16,5 +17,6 @@ module.exports = {
   healthcheck,
   hello,
   notFound,
-  users
+  users,
+  tokens
 };

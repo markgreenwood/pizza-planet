@@ -28,11 +28,9 @@ _users.post = (data, callback) => {
     // Check for pre-existing user
     _data.read('users', phone, (err, data) => {
       if (err) {
-        // TODO: Hash the password
         const hashedPassword = helpers.hash(password);
 
         if (hashedPassword) {
-          // TODO: Save the new user
           const userObject = {
             firstName,
             phone,
