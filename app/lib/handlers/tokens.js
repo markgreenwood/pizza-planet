@@ -48,8 +48,17 @@ _tokens.post = (data, callback) => {
 };
 
 _tokens.get = (data, callback) => {
-  console.log('GET /token');
-  callback(200);
+  // Validate id
+  const id = typeof(data.queryString.id) == 'string' && data.queryString.id.trim().length == 20 ? data.queryString.id.trim() : false;
+  if (!id) {
+    callback(400, { Error: 'Missing required field' });
+  }
+  _data.read('tokens', id, (err, tokenObj) => {
+    if (err || !tokenObj) {
+      callback(404);
+    }
+    callback(200, tokenObj);
+  });
 };
 
 _tokens.put = (data, callback) => {
@@ -67,7 +76,7 @@ _tokens.delete = (data, callback) => {
   // TODO: Validate that the user is logged in and can delete this token
   _data.read('tokens', id, (err, tokenObj) => {
     if (err || !tokenObj) {
-      callback(400, { Error: 'Could not find token' });
+      callback(400, { Error: 'Could not find specified token' });
     }
     _data.delete('tokens', id, (err) => {
       if (err) {
