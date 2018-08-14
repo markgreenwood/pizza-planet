@@ -75,7 +75,7 @@ _users.put = (data, callback) => {
   if (phone) {
     if (firstName || email || address || password) {
       // Look up the user
-      // TODO: Make sure user is authenticated before modifying data
+      // TODO: Make sure user is authorized before modifying data
       // Read user's existing data
       _data.read('users', phone, (err, userData) => {
         if (!err && userData) {
@@ -116,11 +116,24 @@ _users.put = (data, callback) => {
 
 _users.delete = (data, callback) => {
   // Check required fields
-  const phone = helpers.validatePhone(data.queryString.phone) ? data.queryString.phone : false;
+  const phone = helpers.validatePhone(data.queryString.phone);
 
   if (phone) {
-    console.log('DELETE /users', data.payload);
-    callback(200);
+    // Look up the user
+    _data.read('users', phone, (err, userData) => {
+      if (!err && userData) {
+        // TODO: authorize deletion by checking token
+        _data.delete('users', phone, (err) => {
+          if (!err) {
+            callback(200);
+          } else {
+            callback(500, { Error: 'Failed to delete user' });
+          }
+        });
+      } else {
+        callback(400, { Error: 'Specified user does not exist' });
+      }
+    });
   } else {
     console.log(400, { Error: 'Missing required fields' });
   }

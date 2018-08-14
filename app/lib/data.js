@@ -6,8 +6,10 @@ const helpers = require('./helpers');
 // Base dir of data folder
 const baseDir = path.join(__dirname, '/../.data/');
 
+const data = {};
+
 // Read data from a file
-const read = (dir, file, callback) => {
+data.read = (dir, file, callback) => {
   fs.readFile(baseDir + dir + '/' + file + '.json', 'utf-8', function(err, data) {
     if (!err && data) {
       const parsedData = helpers.parseJsonToObject(data);
@@ -19,7 +21,7 @@ const read = (dir, file, callback) => {
 };
 
 // Write data to a file
-const create = function(dir, file, data, callback) {
+data.create = function(dir, file, data, callback) {
   // Try opening the file for writing
   fs.open(baseDir + dir + '/' + file + '.json', 'wx', function(err, fileDescriptor) {
     if (!err && fileDescriptor) {
@@ -47,7 +49,7 @@ const create = function(dir, file, data, callback) {
 };
 
 // Update data in an existing file
-const update = function(dir, file, data, callback) {
+data.update = function(dir, file, data, callback) {
   // Open the file for writing
   fs.open(baseDir + dir + '/' + file + '.json', 'r+', function(err, fileDescriptor) {
     if (!err && fileDescriptor) {
@@ -80,8 +82,16 @@ const update = function(dir, file, data, callback) {
   });
 };
 
-module.exports = {
-  read,
-  create,
-  update
+// Delete a file
+data.delete = (dir, file, callback) => {
+  // Unlink the file
+  fs.unlink(baseDir + dir + '/' + file + '.json', (err) => {
+    if (!err) {
+      callback(false);
+    } else {
+      callback('Error deleting file.');
+    }
+  });
 };
+
+module.exports = data;
