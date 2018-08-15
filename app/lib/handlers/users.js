@@ -121,11 +121,18 @@ _users.delete = (data, callback) => {
     _data.read('users', phone, (err, userData) => {
       if (!err && userData) {
         // TODO: authorize deletion by checking token
-        _data.delete('users', phone, (err) => {
-          if (!err) {
-            callback(200);
+        const token = typeof(data.headers.token) == 'string' ? data.headers.token : false;
+        helpers.verifyToken(token, phone, (tokenValid) => {
+          if (tokenValid) {
+            _data.delete('users', phone, (err) => {
+              if (!err) {
+                callback(200);
+              } else {
+                callback(500, { Error: 'Failed to delete user' });
+              }
+            });
           } else {
-            callback(500, { Error: 'Failed to delete user' });
+            callback(400, { Error: 'Missing or invalid token' });
           }
         });
       } else {
