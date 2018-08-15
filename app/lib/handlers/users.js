@@ -1,5 +1,6 @@
 const helpers = require('../helpers');
 const _data = require('../data');
+const { verifyToken } = require('../auth');
 
 const _users = {};
 
@@ -122,7 +123,7 @@ _users.delete = (data, callback) => {
       if (!err && userData) {
         // TODO: authorize deletion by checking token
         const token = typeof(data.headers.token) == 'string' ? data.headers.token : false;
-        helpers.verifyToken(token, phone, (tokenValid) => {
+        verifyToken(token, phone, (tokenValid) => {
           if (tokenValid) {
             _data.delete('users', phone, (err) => {
               if (!err) {
