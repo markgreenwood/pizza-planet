@@ -73,36 +73,41 @@ _users.put = (data, callback) => {
 
   if (phone) {
     if (firstName || email || address || password) {
-      // Look up the user
       // TODO: Make sure user is authorized before modifying data
-      // Read user's existing data
-      _data.read('users', phone, (err, userData) => {
-        if (!err && userData) {
-          if (firstName) {
-            userData.firstName = firstName;
-          }
+      const token = typeof(data.headers.token) == 'string' ? data.headers.token : false;
+      verifyToken(token, phone, (tokenValid) => {
+        if (tokenValid) {
+          _data.read('users', phone, (err, userData) => {
+            if (!err && userData) {
+              if (firstName) {
+                userData.firstName = firstName;
+              }
 
-          if (email) {
-            userData.email = email;
-          }
+              if (email) {
+                userData.email = email;
+              }
 
-          if (address) {
-            userData.address = address;
-          }
+              if (address) {
+                userData.address = address;
+              }
 
-          if (password) {
-            userData.hashedPassword = helpers.hash(password);
-          }
+              if (password) {
+                userData.hashedPassword = helpers.hash(password);
+              }
 
-          _data.update('users', phone, userData, (err) => {
-            if (!err) {
-              callback(200);
+              _data.update('users', phone, userData, (err) => {
+                if (!err) {
+                  callback(200);
+                } else {
+                  callback(500, { Error: 'Failed to update user' });
+                }
+              })
             } else {
-              callback(500, { Error: 'Failed to update user' });
+              callback(400, { Error: 'Specified user does not exist' });
             }
-          })
+          });
         } else {
-          callback(400, { Error: 'Specified user does not exist' });
+          callback(403, { Error: 'Missing or invalid token' });
         }
       });
     } else {
@@ -114,14 +119,11 @@ _users.put = (data, callback) => {
 };
 
 _users.delete = (data, callback) => {
-  // Check required fields
   const phone = helpers.validatePhone(data.queryString.phone);
 
   if (phone) {
-    // Look up the user
     _data.read('users', phone, (err, userData) => {
       if (!err && userData) {
-        // TODO: authorize deletion by checking token
         const token = typeof(data.headers.token) == 'string' ? data.headers.token : false;
         verifyToken(token, phone, (tokenValid) => {
           if (tokenValid) {
@@ -133,7 +135,7 @@ _users.delete = (data, callback) => {
               }
             });
           } else {
-            callback(400, { Error: 'Missing or invalid token' });
+            callback(403, { Error: 'Missing or invalid token' });
           }
         });
       } else {
