@@ -63,7 +63,8 @@ server.router = {
   'healthcheck': handlers.healthcheck,
   'hello': handlers.hello,
   'users': handlers.users,
-  'tokens': handlers.tokens
+  'tokens': handlers.tokens,
+  'menuitems': handlers.menuitems
 };
 
 server.init = () => {
