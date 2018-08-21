@@ -1,3 +1,27 @@
+const menu = {
+  'size': [
+    'personal',
+    'medium',
+    'large'
+  ],
+  'crust': [
+    'thick',
+    'thin'
+  ],
+  'sauce': [
+    'bianco',
+    'traditional'
+  ],
+  'toppings': [
+    'pepperoni',
+    'sausage',
+    'mushrooms',
+    'anchovies',
+    'peppers',
+    'artichokes'
+  ]
+};
+
 const _menuitems = {};
 
 const menuitems = (data, callback) => {
@@ -11,7 +35,7 @@ const menuitems = (data, callback) => {
 };
 
 _menuitems.get = (data, callback) => {
-  callback(200, ['pepperoni', 'sausage', 'anchovies']);
+  callback(200, menu);
 };
 
 module.exports = menuitems;
